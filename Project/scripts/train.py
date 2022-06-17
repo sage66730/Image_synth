@@ -18,10 +18,10 @@ def setup_dir(args):
         fp.write(f"model {args.model}\n")
         fp.write(f"dataset {args.dataset}\n")
         fp.write(f"targets {args.target}\n")
-        fp.write(f"loss fn {args.loss_fn}\n")
+        fp.write(f"loss_fn {args.loss_fn}\n")
         fp.write(f"optimizer {args.optimizer}\n")
-        fp.write(f"batch size {args.batch_size}\n")
-        fp.write(f"learning rate {args.learning_rate}\n")
+        fp.write(f"batch_size {args.batch_size}\n")
+        fp.write(f"learning_rate {args.learning_rate}\n")
         #fp.write(f" {args.}\n")
     return dir_path
 
@@ -44,7 +44,7 @@ def main(args):
     for e in tq:
         #epoch train
         losses = []
-        for data, label in train_dataloader:
+        for _, data, label in train_dataloader:
             data = data.to(device)
             label = label.to(device)
             pred = model(data)

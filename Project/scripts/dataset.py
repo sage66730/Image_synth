@@ -129,13 +129,14 @@ class ObjDataset(Dataset):
             fp.write(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv   {number}\n")
             return odata, torch.Tensor([0]*61)
         
-        return odata, cdata[number]
+        return [subject, sentence, number], odata, cdata[number]
 
     def load_data_label(self, dataset_path, subjects):
         if subjects == ["*"]:
             obj_paths = glob.glob(dataset_path+"/data/*/*/obj/meshes/*.obj")
             csv_paths = glob.glob(dataset_path+"/label/*/*/aligned.csv")
         else:
+            subjects = subjects.split(",")
             obj_paths = []
             for subject in subjects:
                 obj_paths += glob.glob(dataset_path+"/data/"+subject+"/*/obj/meshes/*.obj")

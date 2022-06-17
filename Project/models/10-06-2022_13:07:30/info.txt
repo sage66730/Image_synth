@@ -1,7 +1,7 @@
 model ObjModel1
 dataset ObjDataset
 targets *
-loss fn MSE
+loss_fn MSE
 optimizer Adam
-batch size 32
-learning rate 0.001
+batch_size 32
+learning_rate 0.001
