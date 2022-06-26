@@ -104,8 +104,8 @@ if __name__ == "__main__":
     
     # env
     parser.add_argument("--dataset_path", type=str, default="/home/sage66730/dataset", help="path to the root dir of dataset")
-    parser.add_argument("--model_path", type=str, default="/home/sage66730/Project/models/10-06-2022_13:07:30", help="path to the saved model dir for testing")
-    parser.add_argument("--save_path", type=str, default="/home/sage66730/Project/results", help="path to the save dir for testing result")
+    parser.add_argument("--model_path", type=str, default="/home/sage66730/Image_synth/Project/models/10-06-2022_13:07:30", help="path to the saved model dir for testing")
+    parser.add_argument("--save_path", type=str, default="/home/sage66730/Image_synth/Project/results", help="path to the save dir for testing result")
     
     # configuration
     parser.add_argument("--model", type=str, default="ObjModel1", help="the model to be trained")

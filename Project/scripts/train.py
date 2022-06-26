@@ -83,7 +83,7 @@ if __name__ == "__main__":
     
     # env
     parser.add_argument("--dataset_path", type=str, default="/home/sage66730/dataset", help="path to the root dir of dataset")
-    parser.add_argument("--save_path", type=str, default="/home/sage66730/Project/models", help="path to the save dir for trianed checkpoint")
+    parser.add_argument("--save_path", type=str, default="/home/sage66730/Image_synth/Project/models", help="path to the save dir for trianed checkpoint")
     
     # configuration
     parser.add_argument("--model", type=str, default="ObjModel1", help="the model to be trained")

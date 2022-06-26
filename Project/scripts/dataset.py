@@ -41,6 +41,51 @@ def load_csv(fp):
             temp.append(torch.Tensor(tensor))
     return temp  
 
+class ObjDataset(Dataset):
+    def __init__(self, dataset_path, subjects):
+        self.dataset_path = dataset_path
+        self.datas, self.labels = self.load_data_label(dataset_path, subjects)
+
+    def __len__(self):
+        return len(self.datas)
+
+    def __getitem__(self, idx):
+
+        with open(self.datas[idx], "r", buffering=2 ** 10) as fp:
+            odata = load_obj(fp)
+            odata = torch.Tensor(odata)
+    
+        subject  = self.datas[idx].split("/")[-5]
+        sentence = self.datas[idx].split("/")[-4]
+        number   = int(self.datas[idx].split("/")[-1].split(".")[0])
+
+        with open(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv", newline='') as fp:
+            cdata = load_csv(fp)
+        
+        if len(cdata[number]) == 0:
+            fp = open("error.txt", "a") 
+            fp.write(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv   {number}\n")
+            return odata, torch.Tensor([0]*61)
+        
+        return [subject, sentence, number], odata, cdata[number]
+
+    def load_data_label(self, dataset_path, subjects):
+        if subjects == ["*"]:
+            obj_paths = glob.glob(dataset_path+"/data/*/*/obj/meshes/*.obj")
+            csv_paths = glob.glob(dataset_path+"/label/*/*/aligned.csv")
+        else:
+            subjects = subjects.split(",")
+            obj_paths = []
+            for subject in subjects:
+                obj_paths += glob.glob(dataset_path+"/data/"+subject+"/*/obj/meshes/*.obj")
+            csv_paths = []
+            for subject in subjects:
+                csv_paths += glob.glob(dataset_path+"/label/"+subject+"/*/aligned.csv")
+        obj_paths = sorted(obj_paths)
+        csv_paths = sorted(csv_paths)
+        
+        return obj_paths, csv_paths
+
 class ExpDataset(Dataset):
     def __init__(self, dataset_path, subjects):
         self.datas, self.labels = self.load_data_label(dataset_path, subjects)
@@ -102,51 +147,6 @@ class ExpDataset(Dataset):
 
         datas, labels = self.align(datas, labels)
         return datas, labels
-
-class ObjDataset(Dataset):
-    def __init__(self, dataset_path, subjects):
-        self.dataset_path = dataset_path
-        self.datas, self.labels = self.load_data_label(dataset_path, subjects)
-
-    def __len__(self):
-        return len(self.datas)
-
-    def __getitem__(self, idx):
-
-        with open(self.datas[idx], "r", buffering=2 ** 10) as fp:
-            odata = load_obj(fp)
-            odata = torch.Tensor(odata)
-    
-        subject  = self.datas[idx].split("/")[-5]
-        sentence = self.datas[idx].split("/")[-4]
-        number   = int(self.datas[idx].split("/")[-1].split(".")[0])
-
-        with open(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv", newline='') as fp:
-            cdata = load_csv(fp)
-        
-        if len(cdata[number]) == 0:
-            fp = open("error.txt", "a") 
-            fp.write(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv   {number}\n")
-            return odata, torch.Tensor([0]*61)
-        
-        return [subject, sentence, number], odata, cdata[number]
-
-    def load_data_label(self, dataset_path, subjects):
-        if subjects == ["*"]:
-            obj_paths = glob.glob(dataset_path+"/data/*/*/obj/meshes/*.obj")
-            csv_paths = glob.glob(dataset_path+"/label/*/*/aligned.csv")
-        else:
-            subjects = subjects.split(",")
-            obj_paths = []
-            for subject in subjects:
-                obj_paths += glob.glob(dataset_path+"/data/"+subject+"/*/obj/meshes/*.obj")
-            csv_paths = []
-            for subject in subjects:
-                csv_paths += glob.glob(dataset_path+"/label/"+subject+"/*/aligned.csv")
-        obj_paths = sorted(obj_paths)
-        csv_paths = sorted(csv_paths)
-        
-        return obj_paths, csv_paths
 
 if __name__ == "__main__":
     #test = ExpDataset(dataset_path="/home/sage66730/dataset", subjects=["*"])
