@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from util import * 
 
 def setup_dir(args):
-    start_dt = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+    start_dt = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     dir_path = f"{args.save_path}/{start_dt}"
     os.mkdir(dir_path)
     print(f"start traing at {start_dt}")
@@ -17,7 +17,7 @@ def setup_dir(args):
     with open(f"{dir_path}/info.txt", 'w') as fp:
         fp.write(f"model {args.model}\n")
         fp.write(f"dataset {args.dataset}\n")
-        fp.write(f"targets {args.target}\n")
+        fp.write(f"target {args.target}\n")
         fp.write(f"loss_fn {args.loss_fn}\n")
         fp.write(f"optimizer {args.optimizer}\n")
         fp.write(f"batch_size {args.batch_size}\n")
@@ -26,11 +26,12 @@ def setup_dir(args):
     return dir_path
 
 def main(args):
+    args.target = read_training_set(args.dataset_path) 
     dir_path = setup_dir(args)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device}")
 
-    # initialize 
+    # initialize
     model = get_model(args).to(device)
     dataset = get_dataset(args)
     train_dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -45,8 +46,8 @@ def main(args):
         #epoch train
         losses = []
         for _, data, label in train_dataloader:
-            data = data.to(device)
-            label = label.to(device)
+            #data = data.to(device)
+            #label = label.to(device)
             pred = model(data)
             loss = loss_fn(pred, label)
 
@@ -69,7 +70,7 @@ def main(args):
         else: stop_cnt = 0
 
         #save model
-        if e%5 == 0 or e == args.epoch-1:
+        if e%(args.save_freqency) == 0 or e == args.epoch-1:
             torch.save(model, f"{dir_path}/{e:03d}_{epo_loss}.pth")
 
         #hist recording
@@ -88,13 +89,13 @@ if __name__ == "__main__":
     # configuration
     parser.add_argument("--model", type=str, default="ObjModel1", help="the model to be trained")
     parser.add_argument("--dataset", type=str, default="ObjDataset", help="the dataset to be used")
-    parser.add_argument("--target", type=str, default="*", help="subjects to include in the dataset")
     parser.add_argument("--loss_fn", type=str, default="MSE", help="the loss fn to be used")
     parser.add_argument("--optimizer", type=str, default="Adam", help="the optimizer to be used")
 
     # training para
     parser.add_argument("--epoch", type=int, default=20, help="number of epoch to train")
     parser.add_argument("--batch_size", type=int, default=32, help="batch size to train")
+    parser.add_argument("--save_freqency", type=int, default=1, help="freqency to save result")
     parser.add_argument("--learning_rate", type=float, default=0.001, help="learning rate to train")
     
     main(parser.parse_args()) 

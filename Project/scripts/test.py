@@ -49,11 +49,24 @@ def save_reult(path, preds):
             os.mkdir(f"{path}/{subject}/{sentence:02d}")
             csvfile = open(f"{path}/{subject}/{sentence:02d}/output.csv", "w", newline='')
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerows(preds[subject][sentence])
+            csvwriter.writerow(["Timecode","BlendShapeCount",
+                                "EyeBlinkLeft",	"EyeLookDownLeft",	"EyeLookInLeft",	"EyeLookOutLeft",	"EyeLookUpLeft", "EyeSquintLeft",	"EyeWideLeft",	"EyeBlinkRight",	
+                                "EyeLookDownRight",	"EyeLookInRight",	"EyeLookOutRight",	"EyeLookUpRight",	"EyeSquintRight",	"EyeWideRight",	"JawForward",	"JawRight",	
+                                "JawLeft",	"JawOpen",	"MouthClose",	"MouthFunnel",	"MouthPucker",	"MouthRight",	"MouthLeft",	"MouthSmileLeft",	
+                                "MouthSmileRight",	"MouthFrownLeft",	"MouthFrownRight",	"MouthDimpleLeft",	"MouthDimpleRight",	"MouthStretchLeft",	"MouthStretchRight", "MouthRollLower",	
+                                "MouthRollUpper",	"MouthShrugLower",	"MouthShrugUpper",	"MouthPressLeft",	"MouthPressRight",	"MouthLowerDownLeft",	"MouthLowerDownRight",	"MouthUpperUpLeft",	
+                                "MouthUpperUpRight",	"BrowDownLeft",	"BrowDownRight",	"BrowInnerUp",	"BrowOuterUpLeft",	"BrowOuterUpRight",	"CheekPuff",	"CheekSquintLeft",	
+                                "CheekSquintRight",	"NoseSneerLeft",	"NoseSneerRight",	"TongueOut",	"HeadYaw",	"HeadPitch",	"HeadRoll",	"LeftEyeYaw",	
+                                "LeftEyePitch",	"LeftEyeRoll",	"RightEyeYaw",	"RightEyePitch",	"RightEyeRoll"])
+            for r, row in enumerate(preds[subject][sentence]):
+                m, s = divmod(r,60)
+                new_row = [f"00:00:{m:02d}:{s:02d}.000","61"] + row
+                csvwriter.writerow(new_row)
             
     return
 
 def main(args):
+    args.target = read_testing_set(args.dataset_path)
     dir_path = setup_dir(args)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device}")
@@ -72,13 +85,13 @@ def main(args):
     print(f"Target: {args.target}")
     
     # test
-    preds = { target:{i:[] for i in range(40)} for target in (args.target).split(",")}
+    preds = { target:{i:[] for i in range(40)} for target in args.target}
     losses = []
     tq = tqdm(test_dataloader)
     for info, data, label in tq:
         with torch.no_grad():
-            data = data.to(device)
-            label = label.to(device)
+            #data = data.to(device)
+            #label = label.to(device)
             pred = model(data)
             loss = loss_fn(pred, label)
 
@@ -104,12 +117,11 @@ if __name__ == "__main__":
     
     # env
     parser.add_argument("--dataset_path", type=str, default="/home/sage66730/dataset", help="path to the root dir of dataset")
-    parser.add_argument("--model_path", type=str, default="/home/sage66730/Image_synth/Project/models/10-06-2022_13:07:30", help="path to the saved model dir for testing")
+    parser.add_argument("--model_path", type=str, default="/home/sage66730/Project/models/10-06-2022_13:07:30", help="path to the saved model dir for testing")
     parser.add_argument("--save_path", type=str, default="/home/sage66730/Image_synth/Project/results", help="path to the save dir for testing result")
     
     # configuration
     parser.add_argument("--model", type=str, default="ObjModel1", help="the model to be trained")
     parser.add_argument("--dataset", type=str, default="ObjDataset", help="the dataset to be used")
-    parser.add_argument("--target", type=str, default="08_Jack", help="subjects to be tested")
 
     main(parser.parse_args()) 
