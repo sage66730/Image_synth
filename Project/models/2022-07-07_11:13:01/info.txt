@@ -1,7 +1,0 @@
-model ObjMJModel1
-dataset ObjMJDataset
-target ['01_Brandon', '03_Kate', '04_Mark', '05_Aarav', '06_Lena', '07_Wiam', '08_Jack', '09_Caelen', '10_Jeff', '11_Lauren', '12_Karen']
-loss_fn MSE
-optimizer Adam
-batch_size 32
-learning_rate 0.001

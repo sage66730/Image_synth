@@ -19,6 +19,7 @@ def setup_dir(args):
         print("over writing") 
         shutil.rmtree(dir_path) 
     os.mkdir(dir_path)
+    shutil.copyfile(f"{args.model_path}/info.txt", f"{dir_path}/info.txt")
 
     return dir_path
 

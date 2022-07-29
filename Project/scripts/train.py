@@ -1,4 +1,5 @@
 import os
+import pytz
 import torch
 import argparse
 from tqdm import tqdm
@@ -9,7 +10,8 @@ from torch.utils.data import DataLoader
 from util import * 
 
 def setup_dir(args):
-    start_dt = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    timezone = pytz.timezone("America/Los_Angeles")
+    start_dt = (datetime.now().astimezone(timezone)).strftime("%Y-%m-%d_%H:%M:%S")
     dir_path = f"{args.save_path}/{start_dt}"
     os.mkdir(dir_path)
     print(f"start traing at {start_dt}")
@@ -22,6 +24,7 @@ def setup_dir(args):
         fp.write(f"optimizer {args.optimizer}\n")
         fp.write(f"batch_size {args.batch_size}\n")
         fp.write(f"learning_rate {args.learning_rate}\n")
+        fp.write(f"message {args.message}\n")
         #fp.write(f" {args.}\n")
     return dir_path
 
@@ -37,6 +40,7 @@ def main(args):
     train_dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     loss_fn = get_loss_fn(args)
     optimizer = get_optimizer(model, args)
+    scheduler = get_scheduler(optimizer, args)
     
     # train
     hist = {"loss":[]}
@@ -57,6 +61,7 @@ def main(args):
             model.zero_grad()
             loss.backward()
             optimizer.step()
+        #scheduler.step()
 
         epo_loss = mean(losses)
 
@@ -76,7 +81,11 @@ def main(args):
         #hist recording
         hist["loss"].append(epo_loss)
 
-    print(hist["loss"])
+    # record
+    with open(f"{dir_path}/info.txt", 'a') as fp:
+        losses = hist["loss"]
+        print(losses)
+        fp.write(f"losses {losses}\n")
     return
 
 if __name__ == "__main__":
@@ -85,17 +94,20 @@ if __name__ == "__main__":
     # env
     parser.add_argument("--dataset_path", type=str, default="/home/sage66730/dataset", help="path to the root dir of dataset")
     parser.add_argument("--save_path", type=str, default="/home/sage66730/Image_synth/Project/models", help="path to the save dir for trianed checkpoint")
+    parser.add_argument("--message", type=str, default="No message", help="custom message that would be displayed in info.txt")
     
     # configuration
-    parser.add_argument("--model", type=str, default="ObjModel1", help="the model to be trained")
-    parser.add_argument("--dataset", type=str, default="ObjDataset", help="the dataset to be used")
-    parser.add_argument("--loss_fn", type=str, default="MSE", help="the loss fn to be used")
+    parser.add_argument("--model", type=str, default="ObjMJModel1", help="the model to be trained")
+    parser.add_argument("--dataset", type=str, default="ObjMJDataset", help="the dataset to be used")
+    parser.add_argument("--loss_fn", type=str, default="WeightedMSE_M", help="the loss fn to be used")
     parser.add_argument("--optimizer", type=str, default="Adam", help="the optimizer to be used")
+    parser.add_argument("--scheduler", type=str, default="LambdaLR", help="the scheduler to be used")
 
     # training para
     parser.add_argument("--epoch", type=int, default=20, help="number of epoch to train")
     parser.add_argument("--batch_size", type=int, default=32, help="batch size to train")
     parser.add_argument("--save_freqency", type=int, default=1, help="freqency to save result")
     parser.add_argument("--learning_rate", type=float, default=0.001, help="learning rate to train")
+    parser.add_argument("--weight_decay", type=float, default=0, help="weight decay to train")
     
     main(parser.parse_args()) 

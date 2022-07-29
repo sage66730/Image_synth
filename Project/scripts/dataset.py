@@ -95,6 +95,7 @@ class ObjMJDataset(Dataset):
         self.jaw = [807, 948, 949, 950, 1596, 1623, 1633, 1634, 1635, 3063, 3091, 3093, 3094, 3151, 3152, 3507, 3508, 3509, 3580, 3581, 3582, 3583, 3584, 3585, 3586, 3587, 3588, 3589, 3590, 3591, 3592, 3600, 3602, 3603, 3604, 3609, 3610, 3611, 3616, 3620, 3621, 3622, 3623, 3624, 
         3625, 3626, 3627, 3628, 3629, 3630, 3631, 3632, 3633, 3634, 3635, 3636, 3637, 3650, 3653, 3654, 3655, 3659, 3660, 3662, 3764, 3765, 3766, 3767, 3768, 3769, 3770, 3771, 3772, 3773, 3774, 3775, 3776, 3777, 3778, 3779, 3780, 3781, 3782, 3783, 3784, 3785, 3786, 3794, 3795, 3796, 3797, 3806, 3807, 3808, 3809, 3810, 3816, 3817, 3818, 3819, 3820, 3821, 3822, 3825, 3829, 3844, 3852, 3853]
 
+        self.all = [i for i in range(5023) if (i not in self.mouth) and ((i not in self.jaw))]
 
     def __len__(self):
         return len(self.datas)
@@ -107,6 +108,7 @@ class ObjMJDataset(Dataset):
         
         m = odata[self.mouth]
         j = odata[self.jaw]
+        a = odata[self.all]
     
         subject  = self.datas[idx].split("/")[-5]
         sentence = self.datas[idx].split("/")[-4]
@@ -118,9 +120,11 @@ class ObjMJDataset(Dataset):
         if len(cdata[number]) == 0:
             fp = open("error.txt", "a") 
             fp.write(f"{self.dataset_path}/label/{subject}/{sentence}/aligned.csv   {number}\n")
-            return [subject, sentence, number], [m, j, odata], torch.Tensor([0]*61)
+            #return [subject, sentence, number], [m, j, odata], torch.Tensor([0]*61)
+            return [subject, sentence, number], [m, j, a], torch.Tensor([0]*61)
         
-        return [subject, sentence, number], [m, j, odata], cdata[number]
+        #return [subject, sentence, number], [m, j, odata], cdata[number]
+        return [subject, sentence, number], [m, j, a], cdata[number]
 
     def load_data_label(self, dataset_path, subjects):
         obj_paths = []

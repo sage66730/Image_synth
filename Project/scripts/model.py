@@ -63,7 +63,7 @@ class ObjMJModel1(torch.nn.Module):
         self.j_activation2 = nn.ReLU()
 
         # for all the blendshape
-        self.a_linear1 = nn.Linear(dim_in, dim_h1*2)
+        self.a_linear1 = nn.Linear(4519*3, dim_h1*2)
         self.a_bn1 = nn.BatchNorm1d(dim_h1*2)
         self.a_activation1 = nn.Sigmoid()
 
@@ -92,7 +92,7 @@ class ObjMJModel1(torch.nn.Module):
         j = self.j_linear2(j)
         j = self.j_activation2(j)
 
-        a = a.view(-1, self.dim_in)
+        a = a.view(-1, 4519*3)
         a = self.a_linear1(a)
         a = self.a_bn1(a)
         a = self.a_activation1(a)
