@@ -3,6 +3,7 @@ import torch
 from model import *
 from dataset import *
 
+# punish JawOpen MouthClose MouthFunnel MouthPucker
 def WeightedMSE_4(pred, label):
     a = 1
     return a*(torch.sum((pred[17:21] - label[17:21]) ** 2)) + (1-a)*(torch.sum((pred[:17] - label[:17]) ** 2)+torch.sum((pred[21:61] - label[21:61]) ** 2))
