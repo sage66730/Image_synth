@@ -34,5 +34,5 @@ The result and a copy of info.txt will be stored under "result"
 ![image](https://user-images.githubusercontent.com/28528165/185231048-1e9c8b8c-c5f8-468f-93f9-e677deaac2d5.png)  
 There is a script for validation frame by frame along with all the blendshape parameters and calculated loss.  
 To check the quilty of the NN output:  
-1. export the mesh videos using [Blender](https://www.blender.org/)  
+1. export the LiveLink csv files, output csv files and mesh videos using [Blender](https://www.blender.org/) then put them in the same directory of the script.
 2. Specify the output video and label video as input in meshviwer.py and run it  
